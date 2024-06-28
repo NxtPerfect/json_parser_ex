@@ -10,10 +10,12 @@ defmodule Parser do
     IO.puts("Error! No path specified.")
     :error
   end
+
   def read_parse_json("") do
     IO.puts("Error! Path to file is empty.")
     :error
   end
+
   def read_parse_json(path) do
     # TODO: Handle paths using $HOME or ~
     file = File.read!(path)
@@ -22,43 +24,55 @@ defmodule Parser do
     IO.puts("File successfully parsed.\n" <> file_parsed)
     :ok
   end
-  def parse(content) do
-    # If doesn't start or end with {}
-    # not a valid json file
-    # if !String.starts_with?(content, "{") and !String.ends_with?(content, "}") do
-    #   IO.puts("Not a valid json, doesn't start/end with {}")
-    #   :error
-    # end
-    [left, right] = String.split(content, "{", parts: 2)
-    index = String.length(left)
-    # IO.puts([left, parsed_content, String.length(left), " ", String.length(parsed_content)])
-    IO.write("Found '{' at ")
-    IO.write(index)
-    IO.write(" index.\n")
-    IO.puts(right)
-    # Now if we get item in "" on the left then we know what variable
-    # is defined on the right side, and if right side starts with {
-    # then it's an object, [ is an array, "" is a string,
-    # number/bool is number/bool
-    if String.contains?(left, ",") do
-      [pair, parsed_content] = String.split(left, ",")
-      IO.write("Parsed on comma: ")
-      IO.write(String.strip(pair))
-      IO.write(" ")
-      IO.write(String.strip(parsed_content))
-      IO.write("\n")
 
-      [variable, value] = String.split(pair, ":")
-      IO.write("Parsed on variable and value: ")
-      IO.write(String.strip(variable))
-      IO.write(" ")
-      IO.write(String.strip(value))
-      IO.write("\n")
-    end
-    IO.write("Parsed left string: ")
-    IO.write(left)
-    IO.write("\n")
-    parse(right)
+  def parse(content) do
+    # brackets always take the priority
+    # if : is before brackets, split on that
+    # else split on brackets
+    # Now we need to keep count of open brackets
+    # then we need to split at closing brackets,
+    # depending on which bracket type was last
+    # and return the amount
+    # TODO: How to save last character?
+    [left_side, right_side] =
+      if String.contains?(content, "{") do
+        [left_bracket, right_bracket] = String.split(content, "{", parts: 2)
+        [left_colon, right_colon] = String.split(content, ":", parts: 2)
+
+        if String.length(left_bracket) < String.length(left_colon) do
+          [left_side, right_side] = [left_bracket, right_bracket]
+        else
+          [left_side, right_side] = [left_colon, right_colon]
+        end
+      else
+        if String.contains?(content, "[") do
+          [left_bracket, right_bracket] = String.split(content, "[", parts: 2)
+          [left_colon, right_colon] = String.split(content, ":", parts: 2)
+
+          if String.length(left_bracket) < String.length(left_colon) do
+            [left_side, right_side] = [left_bracket, right_bracket]
+          else
+            [left_side, right_side] = [left_colon, right_colon]
+          end
+        else
+          if String.contains?(content, ",") do
+            [left_side, right_side] = String.split(content, ",", parts: 2)
+          end
+        else
+          if String.contains?(content, "}") do
+            [left_side, right_side] = String.split(content, "}", parts: 2)
+          end
+        else
+          if String.contains?(content, "]") do
+            [left_side, right_side] = String.split(content, "]", parts: 2)
+          end
+        end
+      end
+
+    [left_side, right_side] = [String.trim(left_side), String.trim(right_side)]
+    IO.write("Left side chosen is: ")
+    IO.puts(left_side)
+    parse(right_side)
   end
 end
 

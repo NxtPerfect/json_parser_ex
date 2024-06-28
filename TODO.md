@@ -15,5 +15,6 @@
 - [ ] each opened bracket is another level
 - [ ] return type of each value
 ## Step 2 Optimization
+- [ ] benchmark code
 
 # Optional

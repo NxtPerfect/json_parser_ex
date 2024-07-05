@@ -6,16 +6,20 @@ defmodule Parser do
   # IO.read IO.write
   # shell conventions like ~ aren't expanded
   # by default, for that use Path.expand
+
+  # Early exit no path passeed
   def read_parse_json() do
     IO.puts("Error! No path specified.")
     :error
   end
 
+  # Early exit empty path
   def read_parse_json("") do
     IO.puts("Error! Path to file is empty.")
     :error
   end
 
+  # Open file and parse it
   def read_parse_json(path) do
     # TODO: Handle paths using $HOME or ~
     file = File.read!(path)
@@ -25,54 +29,30 @@ defmodule Parser do
     :ok
   end
 
+  # Recursively check content
+  # Split on open brackets
+  # if closing brackets appear
+  # they need to match last opening
+  # bracket
+  # 
+  # Step 2 is to check key: value,
   def parse(content) do
-    # brackets always take the priority
-    # if : is before brackets, split on that
-    # else split on brackets
-    # Now we need to keep count of open brackets
-    # then we need to split at closing brackets,
-    # depending on which bracket type was last
-    # and return the amount
-    # TODO: How to save last character?
-    [left_side, right_side] =
-      if String.contains?(content, "{") do
-        [left_bracket, right_bracket] = String.split(content, "{", parts: 2)
-        [left_colon, right_colon] = String.split(content, ":", parts: 2)
-
-        if String.length(left_bracket) < String.length(left_colon) do
-          [left_side, right_side] = [left_bracket, right_bracket]
-        else
-          [left_side, right_side] = [left_colon, right_colon]
-        end
-      else
-        if String.contains?(content, "[") do
-          [left_bracket, right_bracket] = String.split(content, "[", parts: 2)
-          [left_colon, right_colon] = String.split(content, ":", parts: 2)
-
-          if String.length(left_bracket) < String.length(left_colon) do
-            [left_side, right_side] = [left_bracket, right_bracket]
-          else
-            [left_side, right_side] = [left_colon, right_colon]
-          end
-        else
-          if String.contains?(content, ",") do
-            [left_side, right_side] = String.split(content, ",", parts: 2)
-          end
-        else
-          if String.contains?(content, "}") do
-            [left_side, right_side] = String.split(content, "}", parts: 2)
-          end
-        else
-          if String.contains?(content, "]") do
-            [left_side, right_side] = String.split(content, "]", parts: 2)
-          end
-        end
-      end
-
-    [left_side, right_side] = [String.trim(left_side), String.trim(right_side)]
-    IO.write("Left side chosen is: ")
-    IO.puts(left_side)
-    parse(right_side)
+    stack = []
+    {_left_side, right_side, stack} = if String.contains?(content, "{") do
+      [_left, right] = String.split(content, "{", parts: 2)
+      stack = ["{" | stack]
+      {_left, right, stack}
+    else
+      [_left, right] = String.split(content, "[", parts: 2)
+      stack = ["[" | stack]
+      {_left, right, stack}
+    end
+    IO.puts("Split content, new right_side" <> right_side)
+    IO.puts("The stack be bussin #{inspect(stack)}")
+    parse(right_side, stack)
+  end
+  def parse(content, stack) do
+    IO.puts("Splitting with stack fr fr #{inspect(stack)}")
   end
 end
 

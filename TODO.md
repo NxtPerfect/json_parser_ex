@@ -1,18 +1,16 @@
 # Requirements
 ## Step 1 MVP
-- [ ] return json as string
 - [/] should check if file is valid json
-    - [x] IO.puts has issue with String.length
-    - [/] finds ':' but doesn't do anything with it
-        - [x] finds values
-        - [/] if values on same level, doesn't split on ','
-        instead of passing it to function again
-        should save it's value to the variable
-        - [x] once we parse '{' we try to parse '{' again
-        but find no match
-- [ ] each opened bracket is another level
-- [ ] return type of each value
+    - has paired opening and closing brackets
+    - has commas between values
+    - each key has it's value
+    - [ ] if it's object '{}' it has "key: value"
+    - [ ] if an array '[]' it has "value,"
+- [ ] each opened bracket is another element in stack
 ## Step 2 Optimization
 - [ ] benchmark code
 
+## Step 3 Optional features
+- [ ] return type of each value
+- [ ] return json as string
 # Optional

@@ -6,7 +6,8 @@
     - each key has it's value
     - [ ] if it's object '{}' it has "key: value"
     - [ ] if an array '[]' it has "value,"
-- [ ] each opened bracket is another element in stack
+- [x] each opened bracket is another element in stack
+- [ ] Check which bracket appears first in string
 ## Step 2 Optimization
 - [ ] benchmark code
 
